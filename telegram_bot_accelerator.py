@@ -272,7 +272,7 @@ async def query_handler(update: Update, context: CallbackContext):
 
 async def handle_query_response(update: Update, context: CallbackContext, query: str, voice_message_url: str):
     voice_message_language = context.user_data.get('language') or 'en'
-    selected_bot = context.user_data.get('botname') or 'parent'
+    selected_bot = context.user_data.get('botname') or 'story'
     response = await get_query_response(query, voice_message_url, voice_message_language, selected_bot)
     if "error" in response:
         await context.bot.send_message(chat_id=update.effective_chat.id,
