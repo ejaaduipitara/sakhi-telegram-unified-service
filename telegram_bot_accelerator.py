@@ -58,6 +58,19 @@ language_msg_mapping: dict = {
     "te": "మీరు తెలుగును ఎంచుకున్నారు."
 }
 
+lang_bot_name_mapping = {
+    "en": {
+        "story" : "Story Sakhi",
+        "teacher": "Teacher Sakhi",
+        "parent": "Parent Sakhi"
+    },
+    "hi": {
+        "story" : "कहानी सखी",
+        "teacher": "शिक्षक सखी",
+        "parent": "अभिभावक सखी"
+    }
+}
+
 bot_default_msg = {
     "en": {
         "story": "Wecome to *Story Sakhi!*\nI can create a story for you about what you ask for. \n\nFor example: \nI can tell a story about a girl who saw the sea for the first time.\nI can tell a story about a Monkey and a Frog\nAsk me about anything that you want. You can type or speak.",
@@ -162,12 +175,12 @@ async def preferred_language_callback(update: Update, context: CallbackContext):
     # return query_handler
 
 async def bot_handler(update: Update, context: CallbackContext):
-    inline_keyboard_buttons = [
-        [InlineKeyboardButton('Story', callback_data='botname_story')],
-        [InlineKeyboardButton('Teacher Activities', callback_data='botname_teacher')],
-        [InlineKeyboardButton('Parent Activities', callback_data='botname_parent')]]    
-    reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)  
     language = context.user_data.get('language') or 'en'
+    inline_keyboard_buttons = [
+        [InlineKeyboardButton(lang_bot_name_mapping[language]["story"], callback_data='botname_story')],
+        [InlineKeyboardButton(lang_bot_name_mapping[language]["teacher"], callback_data='botname_teacher')],
+        [InlineKeyboardButton(lang_bot_name_mapping[language]["parent"], callback_data='botname_parent')]]    
+    reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)  
     text_message = language_msg_mapping[language]  
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown")
 
