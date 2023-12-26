@@ -16,7 +16,7 @@ The Sakhi Telegram Bot is a Python-based bot that interacts with the Sakhi API S
 1. Clone the repository
 
    ```bash
-   git  clone https://github.com/DJP-Digital-Jaaduii-Pitara/sakhi-telegram-service.git
+   git  clone https://github.com/DJP-Digital-Jaaduii-Pitara/sakhi-telegram-unified-service.git
 
 2. Install required python packages
 
