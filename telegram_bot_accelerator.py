@@ -136,15 +136,15 @@ async def relay_handler(update: Update, context: CallbackContext):
 async def language_handler(update: Update, context: CallbackContext):
     inline_keyboard_buttons = [
         [InlineKeyboardButton('English', callback_data='lang_en')],
-        [InlineKeyboardButton('বাংলা', callback_data='lang_bn')],
-        [InlineKeyboardButton('ગુજરાતી', callback_data='lang_gu')],
-        [InlineKeyboardButton('हिंदी', callback_data='lang_hi')],
-        [InlineKeyboardButton('ಕನ್ನಡ', callback_data='lang_kn')],
-        [InlineKeyboardButton('മലയാളം', callback_data='lang_ml')],
-        [InlineKeyboardButton('मराठी', callback_data='lang_mr')], [InlineKeyboardButton('ଓଡ଼ିଆ', callback_data='or')],
-        [InlineKeyboardButton('ਪੰਜਾਬੀ', callback_data='lang_pa')],
-        [InlineKeyboardButton('தமிழ்', callback_data='lang_ta')],
-        [InlineKeyboardButton('తెలుగు', callback_data='lang_te')]
+        # [InlineKeyboardButton('বাংলা', callback_data='lang_bn')],
+        # [InlineKeyboardButton('ગુજરાતી', callback_data='lang_gu')],
+        [InlineKeyboardButton('हिंदी', callback_data='lang_hi')]
+        # [InlineKeyboardButton('ಕನ್ನಡ', callback_data='lang_kn')],
+        # [InlineKeyboardButton('മലയാളം', callback_data='lang_ml')],
+        # [InlineKeyboardButton('मराठी', callback_data='lang_mr')], [InlineKeyboardButton('ଓଡ଼ିଆ', callback_data='or')],
+        # [InlineKeyboardButton('ਪੰਜਾਬੀ', callback_data='lang_pa')],
+        # [InlineKeyboardButton('தமிழ்', callback_data='lang_ta')],
+        # [InlineKeyboardButton('తెలుగు', callback_data='lang_te')]
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)
 
