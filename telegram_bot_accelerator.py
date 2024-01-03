@@ -235,8 +235,12 @@ def get_bot_endpoint(botName: str):
     else:
         return os.environ["ACTIVITY_API_BASE_URL"]
 
-async def get_query_response(query: str, voice_message_url: str, voice_message_language: str,  selected_bot: str) -> Union[
+async def get_query_response(query: str, voice_message_url: str, update: Update, context: CallbackContext) -> Union[
     ApiResponse, ApiError]:
+    voice_message_language = context.user_data.get('language') or 'en'
+    selected_bot = context.user_data.get('botname') or 'story'
+    user_id = update.message.from_user.id
+    message_id = update.message.message_id
     _domain = get_bot_endpoint(selected_bot)
     try:
         reqBody: dict
@@ -265,7 +269,14 @@ async def get_query_response(query: str, voice_message_url: str, voice_message_l
             reqBody["input"]["audienceType"] = selected_bot
         logger.info(f" API Request Body: {reqBody}")
         url = f'{_domain}/v1/query'
-        response = requests.post(url, data=json.dumps(reqBody))
+        headers = {
+            "x-source": "telegram",
+            "x-request-id": str(message_id),
+            "x-device-id": f"d{user_id}",
+            "x-consumer-id": str(user_id)
+
+        }
+        response = requests.post(url, data=json.dumps(reqBody), headers=headers)
         response.raise_for_status()
         data = response.json()
         requests.session().close()
@@ -306,9 +317,7 @@ async def query_handler(update: Update, context: CallbackContext):
 
 
 async def handle_query_response(update: Update, context: CallbackContext, query: str, voice_message_url: str):
-    voice_message_language = context.user_data.get('language') or 'en'
-    selected_bot = context.user_data.get('botname') or 'story'
-    response = await get_query_response(query, voice_message_url, voice_message_language, selected_bot)
+    response = await get_query_response(query, voice_message_url, update, context)
     if "error" in response:
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                text='An error has been encountered. Please try again.')
