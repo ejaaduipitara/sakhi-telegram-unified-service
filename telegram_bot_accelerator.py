@@ -144,6 +144,10 @@ Ask me about anything that you want. You can type or speak.
     
 }
 
+loader_msg_mapping = {
+    "en": "Please wait, crafting response. It might take upto a minute.",
+    "hi": "कृपया प्रतीक्षा करें, प्रतिक्रिया तैयार कर रहा हूँ। इसमें एक मिनट तक लग सकता है."
+}
 
 async def send_message_to_bot(chat_id, text, context: CallbackContext, parse_mode="Markdown", ) -> None:
     """Send a message  to bot"""
@@ -295,6 +299,7 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def query_handler(update: Update, context: CallbackContext):
     voice_message = None
     query = None
+    selected_language = context.user_data.get('language') or 'en'
     if update.message.text:
         query = update.message.text
         logger.info(
@@ -310,7 +315,7 @@ async def query_handler(update: Update, context: CallbackContext):
         logger.info(
             {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler",
              "label": "voice_question", "value": voice_message_url})
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f'Just a few seconds...')
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=loader_msg_mapping[selected_language])
     await context.bot.sendChatAction(chat_id=update.effective_chat.id, action="typing")
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
