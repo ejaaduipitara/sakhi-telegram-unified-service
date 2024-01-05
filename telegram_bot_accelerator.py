@@ -38,16 +38,23 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
     )
 
 language_msg_mapping: dict = {
-    "en": "e-Jaadui Pitara\nI am here to help you with amazing stories and activities that you can engage your children with.\n\nPlease select Story Sakhi for creating your own story\nPlease select Parent Sakhi for getting suggestions of activities that you can engage with your children at home\nPlease select Teacher Sakhi for getting suggestions of activities that you can engage with your children at school",
+    "en": """
+*My Jaadui Pitara*
+I am here to help you with amazing stories and activities that you can engage your children with.
+
+Please select Story Sakhi for creating your own story
+Please select Parent Sakhi for getting suggestions of activities that you can engage with your children at home
+Please select Teacher Sakhi for getting suggestions of activities that you can engage with your children at school
+""",
     "bn": "আপনি বাংলা বেছে নিয়েছেন।",
     "gu": "તમે ગુજરાતી પસંદ કર્યું છે.",
     "hi": """
-ए-जादुई पिटारा
+*मेरा जादुई पिटारा*
 मैं यहां अद्भुत कहानियों और गतिविधियों के साथ आपकी मदद करने के लिए हूं, जिनमें आप अपने बच्चों को शामिल कर सकते हैं।
 
 अपनी कहानी बनाने के लिए कहानी सखी का चयन करें
 आप घर पर अपने बच्चों के साथ शामिल करनेके गतिविधियों के सुझाव प्राप्त करने के लिए अभिभवक सखी का चयन करें 
-आप स्कूल में अपने बच्चों के साथ शामिल करनेके गतिविधियों के सुझाव प्राप्त करने के लिए शिक्षक सखी  का चयन करें  
+आप स्कूल में अपने बच्चों के साथ शामिल करनेके गतिविधियों के सुझाव प्राप्त करने के लिए शिक्षक सखी  का चयन करें 
 """,
     "kn": "ಕನ್ನಡ ಆಯ್ಕೆ ಮಾಡಿಕೊಂಡಿದ್ದೀರಿ.",
     "ml": "നിങ്ങൾ മലയാളം തിരഞ്ഞെടുത്തു.",
@@ -78,8 +85,8 @@ Wecome to *Story Sakhi!*
 I can create a story for you about what you ask for. 
 
 For example:
-I can tell a story about a girl who saw the sea for the first time.
-I can tell a story about a Monkey and a Frog
+- I can tell a story about a girl who saw the sea for the first time.
+- I can tell a story about a Monkey and a Frog
 
 Ask me about anything that you want. You can type or speak.
 """,
@@ -88,10 +95,11 @@ Wecome to *Teacher Sakhi!*
 I can suggest you activities that you can do with your students (of age 3 to 8 years) at schools. 
 I can also answer your questions about the play based learning suggested in the new NCF for Foundational Stage.
 Here are few examples of what you can ask.
+
 Examples:
-What activity can I do with students to teach sorting or counting numbers
-How can I conduct my class with children with special needs
-What can I do to engage a child who is always distracted.
+- What activity can I do with students to teach sorting or counting numbers
+- How can I conduct my class with children with special needs
+- What can I do to engage a child who is always distracted.
 I can answer your questions about the new NCF
 
 Ask me about anything that you want. You can type or speak.
@@ -99,44 +107,48 @@ Ask me about anything that you want. You can type or speak.
     "parent": """
 Wecome to *Parent Sakhi!*
 I can suggest you activities that you can do with your children at home. Here are few examples of what you can ask:
+
 Examples:
-What activity can I do with my child using vegetables in your kitchen
-Suggest how I can make my child interested in household activities
-My child does not eat nutritious food, what to do
+- What activity can I do with my child using vegetables in your kitchen
+- Suggest how I can make my child interested in household activities
+- My child does not eat nutritious food, what to do
 
 Ask me about anything that you want. You can type or speak.
 """
     },
     "hi": {
        "story": """
-कहानी सखी में आपका स्वागत है!
+*कहानी सखी* में आपका स्वागत है!
 आप जो मांगेंगे उसके बारे में मैं आपके लिए एक कहानी बना सकता हूं।
+
 उदाहरण के लिए:
-मैं उस लड़की की कहानी बता सकता हूँ जिसने पहली बार समुद्र देखा।
-मैं एक बंदर और मेंढक के बारे में एक कहानी बता सकता हूँ
+- मैं उस लड़की की कहानी बता सकता हूँ जिसने पहली बार समुद्र देखा।
+- मैं एक बंदर और मेंढक के बारे में एक कहानी बता सकता हूँ
 
 आप जो चाहते हो वो मुझसे पूछ सकते हैं। आप टाइप कर सकते हैं या बोल सकते हैं।"
 """,
     "teacher": """
-शिक्षक सखी में आपका स्वागत है!
+*शिक्षक सखी* में आपका स्वागत है!
 मैं आपको ऐसी गतिविधियाँ सुझा सकता हूँ जो आप स्कूलों में अपने छात्रों (3 से 8 वर्ष की आयु के) के साथ कर सकते हैं।
 मैं फाउंडेशनल स्टेज के लिए नए एनसीएफ में सुझाए गए खेल आधारित शिक्षण के बारे में आपके सवालों का जवाब भी दे सकता हूं।
 यहां कुछ उदाहरण दिए गए हैं कि आप क्या पूछ सकते हैं।
+
 उदाहरण:
-संख्याओं को क्रमबद्ध करना या गिनना सिखाने के लिए मैं विद्यार्थियों के साथ कौन सी गतिविधि कर सकता हूँ?
-मैं विशेष आवश्यकता वाले बच्चों के साथ अपनी कक्षा कैसे संचालित कर सकता हूँ?
-मैं उस बच्चे को व्यस्त रखने के लिए क्या कर सकता हूं जो हमेशा विचलित रहता है?
-मैं नए एनसीएफ के बारे में आपके सवालों का जवाब दे सकता हूं
+- संख्याओं को क्रमबद्ध करना या गिनना सिखाने के लिए मैं विद्यार्थियों के साथ कौन सी गतिविधि कर सकता हूँ?
+- मैं विशेष आवश्यकता वाले बच्चों के साथ अपनी कक्षा कैसे संचालित कर सकता हूँ?
+- मैं उस बच्चे को व्यस्त रखने के लिए क्या कर सकता हूं जो हमेशा विचलित रहता है?
+- मैं नए एनसीएफ के बारे में आपके सवालों का जवाब दे सकता हूं
 
 आप जो चाहते हो वो मुझसे पूछ सकते हैं। आप टाइप कर सकते हैं या बोल सकते हैं।
 """,
     "parent": """
-अभिबवक सखी में आपका स्वागत है!
+*अभिबवक सखी* में आपका स्वागत है!
 मैं आपको ऐसी गतिविधियाँ सुझा सकता हूँ जो आप घर पर अपने बच्चों के साथ कर सकते हैं। यहां कुछ उदाहरण दिए गए हैं कि आप क्या पूछ सकते हैं:
+
 उदाहरण:
-मैं आपकी रसोई में सब्जियों का उपयोग करके अपने बच्चे के साथ कौन सी गतिविधि कर सकता हूँ?
-सुझाव दीजिए कि मैं अपने बच्चे की घरेलू गतिविधियों में रुचि कैसे पैदा कर सकता हूँ
-मेरा बच्चा पौष्टिक खाना नहीं खाता, क्या करूं?
+- मैं आपकी रसोई में सब्जियों का उपयोग करके अपने बच्चे के साथ कौन सी गतिविधि कर सकता हूँ?
+- सुझाव दीजिए कि मैं अपने बच्चे की घरेलू गतिविधियों में रुचि कैसे पैदा कर सकता हूँ
+- मेरा बच्चा पौष्टिक खाना नहीं खाता, क्या करूं?
 
 आप जो चाहते हो वो मुझसे पूछ सकते हैं। आप टाइप कर सकते हैं या बोल सकते हैं।
 """ 
@@ -158,7 +170,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user_name = update.message.chat.first_name
     logger.info({"id": update.effective_chat.id, "username": user_name, "category": "logged_in", "label": "logged_in"})
-    await send_message_to_bot(update.effective_chat.id, f"Namaste 🙏\nWelcome to *e-Jaadui Pitara*", context)
+    await send_message_to_bot(update.effective_chat.id, f"Namaste 🙏\nWelcome to *My Jaadui Pitara*", context)
     await relay_handler(update, context)
 
 
@@ -235,9 +247,9 @@ class ApiError(TypedDict):
 
 def get_bot_endpoint(botName: str):
     if botName == "story":
-        return os.environ["STORY_API_BASE_URL"]
+        return os.environ["STORY_API_BASE_URL"] + '/v1/query'
     else:
-        return os.environ["ACTIVITY_API_BASE_URL"]
+        return os.environ["ACTIVITY_API_BASE_URL"] + '/v1/query'
 
 async def get_query_response(query: str, voice_message_url: str, update: Update, context: CallbackContext) -> Union[
     ApiResponse, ApiError]:
@@ -245,7 +257,7 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
     selected_bot = context.user_data.get('botname') or 'story'
     user_id = update.message.from_user.id
     message_id = update.message.message_id
-    _domain = get_bot_endpoint(selected_bot)
+    url = get_bot_endpoint(selected_bot)
     try:
         reqBody: dict
         if voice_message_url is None:
@@ -272,7 +284,6 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
         if selected_bot != "story":
             reqBody["input"]["audienceType"] = selected_bot
         logger.info(f" API Request Body: {reqBody}")
-        url = f'{_domain}/v1/query'
         headers = {
             "x-source": "telegram",
             "x-request-id": str(message_id),
