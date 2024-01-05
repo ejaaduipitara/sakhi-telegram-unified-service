@@ -46,8 +46,6 @@ Please select Story Sakhi for creating your own story
 Please select Parent Sakhi for getting suggestions of activities that you can engage with your children at home
 Please select Teacher Sakhi for getting suggestions of activities that you can engage with your children at school
 """,
-    "bn": "আপনি বাংলা বেছে নিয়েছেন।",
-    "gu": "તમે ગુજરાતી પસંદ કર્યું છે.",
     "hi": """
 *मेरा जादुई पिटारा*
 मैं यहां अद्भुत कहानियों और गतिविधियों के साथ आपकी मदद करने के लिए हूं, जिनमें आप अपने बच्चों को शामिल कर सकते हैं।
@@ -55,14 +53,7 @@ Please select Teacher Sakhi for getting suggestions of activities that you can e
 अपनी कहानी बनाने के लिए कहानी सखी का चयन करें
 आप घर पर अपने बच्चों के साथ शामिल करनेके गतिविधियों के सुझाव प्राप्त करने के लिए अभिभवक सखी का चयन करें 
 आप स्कूल में अपने बच्चों के साथ शामिल करनेके गतिविधियों के सुझाव प्राप्त करने के लिए शिक्षक सखी  का चयन करें 
-""",
-    "kn": "ಕನ್ನಡ ಆಯ್ಕೆ ಮಾಡಿಕೊಂಡಿದ್ದೀರಿ.",
-    "ml": "നിങ്ങൾ മലയാളം തിരഞ്ഞെടുത്തു.",
-    "mr": "तुम्ही मराठीची निवड केली आहे.",
-    "or": "ଆପଣ ଓଡିଆକୁ ବାଛିଛନ୍ତି.",
-    "pa": "ਤੁਸੀਂ ਪੰਜਾਬੀ ਨੂੰ ਚੁਣਿਆ ਹੈ।",
-    "ta": "நீங்கள் தமிழைத் தேர்ந்தெடுத்துள்ளீர்கள்.",
-    "te": "మీరు తెలుగును ఎంచుకున్నారు."
+"""
 }
 
 lang_bot_name_mapping = {
@@ -187,15 +178,16 @@ async def relay_handler(update: Update, context: CallbackContext):
 async def language_handler(update: Update, context: CallbackContext):
     inline_keyboard_buttons = [
         [InlineKeyboardButton('English', callback_data='lang_en')],
-        # [InlineKeyboardButton('বাংলা', callback_data='lang_bn')],
-        # [InlineKeyboardButton('ગુજરાતી', callback_data='lang_gu')],
-        [InlineKeyboardButton('हिंदी', callback_data='lang_hi')]
-        # [InlineKeyboardButton('ಕನ್ನಡ', callback_data='lang_kn')],
-        # [InlineKeyboardButton('മലയാളം', callback_data='lang_ml')],
-        # [InlineKeyboardButton('मराठी', callback_data='lang_mr')], [InlineKeyboardButton('ଓଡ଼ିଆ', callback_data='or')],
-        # [InlineKeyboardButton('ਪੰਜਾਬੀ', callback_data='lang_pa')],
-        # [InlineKeyboardButton('தமிழ்', callback_data='lang_ta')],
-        # [InlineKeyboardButton('తెలుగు', callback_data='lang_te')]
+        [InlineKeyboardButton('বাংলা', callback_data='lang_bn')],
+        [InlineKeyboardButton('ગુજરાતી', callback_data='lang_gu')],
+        [InlineKeyboardButton('हिंदी', callback_data='lang_hi')],
+        [InlineKeyboardButton('ಕನ್ನಡ', callback_data='lang_kn')],
+        [InlineKeyboardButton('മലയാളം', callback_data='lang_ml')],
+        [InlineKeyboardButton('मराठी', callback_data='lang_mr')], 
+        [InlineKeyboardButton('ଓଡ଼ିଆ', callback_data='or')],
+        [InlineKeyboardButton('ਪੰਜਾਬੀ', callback_data='lang_pa')],
+        [InlineKeyboardButton('தமிழ்', callback_data='lang_ta')],
+        [InlineKeyboardButton('తెలుగు', callback_data='lang_te')]
     ]
     reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)
 
@@ -214,12 +206,13 @@ async def preferred_language_callback(update: Update, context: CallbackContext):
 
 async def bot_handler(update: Update, context: CallbackContext):
     language = context.user_data.get('language') or 'en'
+    button_labels = get_lang_mapping(language, lang_bot_name_mapping)
     inline_keyboard_buttons = [
-        [InlineKeyboardButton(lang_bot_name_mapping[language]["story"], callback_data='botname_story')],
-        [InlineKeyboardButton(lang_bot_name_mapping[language]["teacher"], callback_data='botname_teacher')],
-        [InlineKeyboardButton(lang_bot_name_mapping[language]["parent"], callback_data='botname_parent')]]    
+        [InlineKeyboardButton(button_labels["story"], callback_data='botname_story')],
+        [InlineKeyboardButton(button_labels["teacher"], callback_data='botname_teacher')],
+        [InlineKeyboardButton(button_labels["parent"], callback_data='botname_parent')]]    
     reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)  
-    text_message = language_msg_mapping[language]  
+    text_message = get_lang_mapping(language, language_msg_mapping)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown")
 
 async def preferred_bot_callback(update: Update, context: CallbackContext):
@@ -227,7 +220,7 @@ async def preferred_bot_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     preferred_bot = callback_query.data[len("botname_"):]
     context.user_data['botname'] = preferred_bot
-    text_msg = bot_default_msg[language][preferred_bot]
+    text_msg = get_lang_mapping(language, bot_default_msg)[preferred_bot]
     logger.info(
         {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "bot_selection",
          "label": "bot_selection", "value": preferred_bot})
@@ -237,6 +230,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     """Send a message when the command /help is issued."""
     await update.message.reply_text("Help!")
 
+def get_lang_mapping(language, mapping, default_lang = "en"):
+    try:
+        return mapping[language]
+    except:
+        return mapping[default_lang]
 
 class ApiResponse(TypedDict):
     output: any
@@ -326,7 +324,7 @@ async def query_handler(update: Update, context: CallbackContext):
         logger.info(
             {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler",
              "label": "voice_question", "value": voice_message_url})
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=loader_msg_mapping[selected_language])
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=get_lang_mapping(selected_language, loader_msg_mapping))
     await context.bot.sendChatAction(chat_id=update.effective_chat.id, action="typing")
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
