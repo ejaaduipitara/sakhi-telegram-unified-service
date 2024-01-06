@@ -184,7 +184,7 @@ async def language_handler(update: Update, context: CallbackContext):
         [InlineKeyboardButton('ಕನ್ನಡ', callback_data='lang_kn')],
         [InlineKeyboardButton('മലയാളം', callback_data='lang_ml')],
         [InlineKeyboardButton('मराठी', callback_data='lang_mr')], 
-        [InlineKeyboardButton('ଓଡ଼ିଆ', callback_data='or')],
+        [InlineKeyboardButton('ଓଡ଼ିଆ', callback_data='lang_or')],
         [InlineKeyboardButton('ਪੰਜਾਬੀ', callback_data='lang_pa')],
         [InlineKeyboardButton('தமிழ்', callback_data='lang_ta')],
         [InlineKeyboardButton('తెలుగు', callback_data='lang_te')]
@@ -196,7 +196,7 @@ async def language_handler(update: Update, context: CallbackContext):
 
 async def preferred_language_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
-    preferred_language = callback_query.data.lstrip('lang_')
+    preferred_language = callback_query.data[len("lang_"):]
     context.user_data['language'] = preferred_language
     logger.info(
         {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "language_selection",
