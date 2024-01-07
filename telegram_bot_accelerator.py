@@ -8,7 +8,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import __version__ as TG_VER
 from telegram.ext import CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext, \
     CallbackQueryHandler, Application
-
+from telemetry_logger import TelemetryLogger
 from logger import logger
 
 """
@@ -24,7 +24,7 @@ botName = os.environ['TELEGRAM_BOT_NAME']
 concurrent_updates = int(os.getenv('concurrent_updates', '1'))
 pool_time_out = int(os.getenv('pool_timeout', '10'))
 connection_pool_size = int(os.getenv('connection_pool_size', '100'))
-
+telemetryLogger = TelemetryLogger()
 try:
     from telegram import __version_info__
 except ImportError:
@@ -287,7 +287,6 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
             "x-request-id": str(message_id),
             "x-device-id": f"d{user_id}",
             "x-consumer-id": str(user_id)
-
         }
         response = requests.post(url, data=json.dumps(reqBody), headers=headers)
         response.raise_for_status()
@@ -346,12 +345,48 @@ async def handle_query_response(update: Update, context: CallbackContext, query:
         logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name,
                      "category": "handle_query_response", "label": "answer_received", "value": query})
         answer = response['output']["text"]
+        keyboard = [
+            [InlineKeyboardButton("👍🏻", callback_data='message-liked'),
+             InlineKeyboardButton("👎🏻", callback_data='message-disliked')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=answer, parse_mode="Markdown")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide your feedback", parse_mode="Markdown", reply_markup=reply_markup)
         if response['output']["audio"]:
             audio_output_url = response['output']["audio"]
             audio_request = requests.get(audio_output_url)
             audio_data = audio_request.content
             await context.bot.send_voice(chat_id=update.effective_chat.id, voice=audio_data)
+
+async def preferred_feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+    voice_message_language = context.user_data.get('language') or 'en'
+    selected_bot = context.user_data.get('botname') or 'story'
+    user_id = update.callback_query.from_user.id
+    message_id = update.callback_query.message.message_id
+    eventData = {
+        "x-source": "telegram",
+        "x-request-id": str(message_id),
+        "x-device-id": f"d{user_id}",
+        "x-consumer-id": str(user_id),
+        "subtype": query.data,
+        "edataId": selected_bot
+    }
+    interectEvent = telemetryLogger.prepare_interect_event(eventData)
+    telemetryLogger.add_event(interectEvent)
+    # # CallbackQueries need to be answered, even if no notification to the user is needed
+    # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    await query.answer()
+    # await query.delete_message()
+    thumpUpIcon = "👍" if query.data == "message-liked" else "👍🏻"
+    thumpDownIcon = "👎" if query.data == "message-disliked" else "👎🏻"
+    keyboard = [
+            [InlineKeyboardButton(thumpUpIcon, callback_data='liked'),
+             InlineKeyboardButton(thumpDownIcon, callback_data='disliked')]
+        ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.edit_message_text("Please provide your feedback", reply_markup=reply_markup)
 
 
 def main() -> None:
@@ -371,7 +406,7 @@ def main() -> None:
 
     application.add_handler(CallbackQueryHandler(preferred_language_callback, pattern=r'lang_\w*'))
     application.add_handler(CallbackQueryHandler(preferred_bot_callback, pattern=r'botname_\w*')) 
-
+    application.add_handler(CallbackQueryHandler(preferred_feedback_callback, pattern=r'message-\w*')) 
     application.add_handler(MessageHandler(filters.TEXT | filters.VOICE, response_handler))
 
     application.run_polling()
