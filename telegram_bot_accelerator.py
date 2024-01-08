@@ -377,16 +377,23 @@ async def preferred_feedback_callback(update: Update, context: ContextTypes.DEFA
     telemetryLogger.add_event(interectEvent)
     # # CallbackQueries need to be answered, even if no notification to the user is needed
     # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
-    await query.answer()
+    await query.answer("Thanks for your feedback.")
     # await query.delete_message()
     thumpUpIcon = "👍" if query.data == "message-liked" else "👍🏻"
     thumpDownIcon = "👎" if query.data == "message-disliked" else "👎🏻"
     keyboard = [
-            [InlineKeyboardButton(thumpUpIcon, callback_data='liked'),
-             InlineKeyboardButton(thumpDownIcon, callback_data='disliked')]
+            [InlineKeyboardButton(thumpUpIcon, callback_data='replymessage_liked'),
+             InlineKeyboardButton(thumpDownIcon, callback_data='replymessage_disliked')]
         ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text("Please provide your feedback", reply_markup=reply_markup)
+    await query.edit_message_text("Please provide your feedback:", reply_markup=reply_markup)
+
+async def preferred_feedback_reply_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+    # # CallbackQueries need to be answered, even if no notification to the user is needed
+    # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    await query.answer()
 
 
 def main() -> None:
@@ -406,7 +413,8 @@ def main() -> None:
 
     application.add_handler(CallbackQueryHandler(preferred_language_callback, pattern=r'lang_\w*'))
     application.add_handler(CallbackQueryHandler(preferred_bot_callback, pattern=r'botname_\w*')) 
-    application.add_handler(CallbackQueryHandler(preferred_feedback_callback, pattern=r'message-\w*')) 
+    application.add_handler(CallbackQueryHandler(preferred_feedback_callback, pattern=r'message-\w*'))
+    application.add_handler(CallbackQueryHandler(preferred_feedback_reply_callback, pattern=r'replymessage_\w*')) 
     application.add_handler(MessageHandler(filters.TEXT | filters.VOICE, response_handler))
 
     application.run_polling()
