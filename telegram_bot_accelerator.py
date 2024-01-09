@@ -346,8 +346,8 @@ async def handle_query_response(update: Update, context: CallbackContext, query:
                      "category": "handle_query_response", "label": "answer_received", "value": query})
         answer = response['output']["text"]
         keyboard = [
-            [InlineKeyboardButton("👍🏻", callback_data='message-liked'),
-             InlineKeyboardButton("👎🏻", callback_data='message-disliked')]
+            [InlineKeyboardButton("👍🏻", callback_data=f'message-liked__{update.message.id}'),
+             InlineKeyboardButton("👎🏻", callback_data=f'message-disliked__{update.message.id}')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=answer, parse_mode="Markdown")
@@ -361,16 +361,15 @@ async def handle_query_response(update: Update, context: CallbackContext, query:
 async def preferred_feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Parses the CallbackQuery and updates the message text."""
     query = update.callback_query
-    voice_message_language = context.user_data.get('language') or 'en'
+    queryData = query.data.split("__")
     selected_bot = context.user_data.get('botname') or 'story'
     user_id = update.callback_query.from_user.id
-    message_id = update.callback_query.message.message_id
     eventData = {
         "x-source": "telegram",
-        "x-request-id": str(message_id),
+        "x-request-id": str(queryData[1]),
         "x-device-id": f"d{user_id}",
         "x-consumer-id": str(user_id),
-        "subtype": query.data,
+        "subtype": queryData[0],
         "edataId": selected_bot
     }
     interectEvent = telemetryLogger.prepare_interect_event(eventData)
@@ -379,8 +378,8 @@ async def preferred_feedback_callback(update: Update, context: ContextTypes.DEFA
     # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     await query.answer("Thanks for your feedback.")
     # await query.delete_message()
-    thumpUpIcon = "👍" if query.data == "message-liked" else "👍🏻"
-    thumpDownIcon = "👎" if query.data == "message-disliked" else "👎🏻"
+    thumpUpIcon = "👍" if queryData[0] == "message-liked" else "👍🏻"
+    thumpDownIcon = "👎" if queryData[0] == "message-disliked" else "👎🏻"
     keyboard = [
             [InlineKeyboardButton(thumpUpIcon, callback_data='replymessage_liked'),
              InlineKeyboardButton(thumpDownIcon, callback_data='replymessage_disliked')]
