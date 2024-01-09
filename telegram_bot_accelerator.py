@@ -246,8 +246,8 @@ async def preferred_feedback_callback(update: Update, context: ContextTypes.DEFA
     # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     await query.answer("Thanks for your feedback.")
     # await query.delete_message()
-    thumpUpIcon = "👍" if query.data == "message-liked" else "👍🏻"
-    thumpDownIcon = "👎" if query.data == "message-disliked" else "👎🏻"
+    thumpUpIcon = "👍" if queryData[0] == "message-liked" else "👍🏻"
+    thumpDownIcon = "👎" if queryData[0] == "message-disliked" else "👎🏻"
     keyboard = [
             [InlineKeyboardButton(thumpUpIcon, callback_data='replymessage_liked'),
              InlineKeyboardButton(thumpDownIcon, callback_data='replymessage_disliked')]
