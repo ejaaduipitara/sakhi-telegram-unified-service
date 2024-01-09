@@ -33,6 +33,7 @@ The Sakhi Telegram Bot is a Python-based bot that interacts with the Sakhi API S
    - TELEMETRY_ENDPOINT_URL
    - TELEMETRY_LOG_ENABLED - (true/false)
    - logLevel - (DEBUG, INFO, ERROR)
+   - SUPPORTED_LANGUAGES - (en,bn,gu,hi,kn,ml,mr,or,pa,ta,te)
 
 5. Start the Telegram bot
 
