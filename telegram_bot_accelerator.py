@@ -213,8 +213,8 @@ async def handle_query_response(update: Update, context: CallbackContext, query:
                      "category": "handle_query_response", "label": "answer_received", "value": query})
         answer = response['output']["text"]
         keyboard = [
-            [InlineKeyboardButton("👍🏻", callback_data='message-liked'),
-             InlineKeyboardButton("👎🏻", callback_data='message-disliked')]
+            [InlineKeyboardButton("👍🏻", callback_data=f'message-liked__{update.message.id}'),
+             InlineKeyboardButton("👎🏻", callback_data=f'message-disliked__{update.message.id}')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=answer, parse_mode="Markdown")
@@ -228,15 +228,16 @@ async def handle_query_response(update: Update, context: CallbackContext, query:
 async def preferred_feedback_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Parses the CallbackQuery and updates the message text."""
     query = update.callback_query
+    queryData = query.data.split("__")
     selected_bot = context.user_data.get('botname') or DEFAULT_BOT
     user_id = update.callback_query.from_user.id
-    message_id = update.callback_query.message.message_id
+    message_id = queryData[1]
     eventData = {
         "x-source": "telegram",
         "x-request-id": str(message_id),
         "x-device-id": f"d{user_id}",
         "x-consumer-id": str(user_id),
-        "subtype": query.data,
+        "subtype": queryData[0],
         "edataId": selected_bot
     }
     interectEvent = telemetryLogger.prepare_interect_event(eventData)
