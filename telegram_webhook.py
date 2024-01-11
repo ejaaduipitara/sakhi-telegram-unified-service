@@ -387,8 +387,8 @@ async def query_handler(update: Update, context: CustomContext):
         logger.info(
             {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler",
              "label": "voice_question", "value": voice_message_url})
-    # await context.bot.send_message(chat_id=update.effective_chat.id, text=get_lang_mapping(selected_language, loader_msg_mapping))
-    await context.bot.sendChatAction(chat_id=update.effective_chat.id, action="typing")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=get_lang_mapping(selected_language, loader_msg_mapping))
+    # await context.bot.sendChatAction(chat_id=update.effective_chat.id, action="typing")
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
 
@@ -465,7 +465,7 @@ async def preferred_feedback_reply_callback(update: Update, context: ContextType
 botName = os.environ['TELEGRAM_BOT_NAME']
 workers = int(os.getenv("UVICORN_WORKERS", "2"))
 localhost = os.getenv("LOCAL_HOST_URL","0.0.0.0")
-localport = os.getenv("LOCAL_HOST_PORT","8000")
+localport = int(os.getenv("LOCAL_HOST_PORT","8000"))
 
 async def main() -> None:
     """Set up PTB application and a web application for handling the incoming requests."""
