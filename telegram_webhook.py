@@ -464,6 +464,8 @@ async def preferred_feedback_reply_callback(update: Update, context: ContextType
 
 botName = os.environ['TELEGRAM_BOT_NAME']
 workers = int(os.getenv("UVICORN_WORKERS", "2"))
+localhost = os.getenv("LOCAL_HOST_URL","0.0.0.0")
+localport = os.getenv("LOCAL_HOST_PORT","8000")
 
 async def main() -> None:
     """Set up PTB application and a web application for handling the incoming requests."""
@@ -516,9 +518,9 @@ async def main() -> None:
     webserver = uvicorn.Server(
         config=uvicorn.Config(
             app=starlette_app,
-            port=8000,
+            port=localport,
             use_colors=False,
-            host="127.0.0.1",
+            host=localhost,
             workers=workers
         )
     )
