@@ -246,6 +246,7 @@ async def language_handler(update: Update, context: CustomContext):
 
 
 async def preferred_language_callback(update: Update, context: CustomContext):
+    print("<<<<<<<<<<<<preferred_language_callback method>>>>>>>>>>>>>>>>>>")
     callback_query = update.callback_query
     preferred_language = callback_query.data[len("lang_"):]
     context.user_data['language'] = preferred_language
@@ -500,9 +501,11 @@ async def main() -> None:
     async def telegram(request: Request) -> Response:
         """Handle incoming Telegram updates by putting them into the `update_queue`"""
         print("<<<<<<<<<<<<adding to telegram queue>>>>>>>>>>>>>>>>>>")
+        body = await request.json()
         await application.update_queue.put(
-            Update.de_json(data=await request.json(), bot=application.bot)
+            Update.de_json(data=body, bot=application.bot)
         )
+        print("<<<<<<<<<<<<Returning from telegram queue>>>>>>>>>>>>>>>>>>")
         return Response()
 
     async def health(_: Request) -> PlainTextResponse:
