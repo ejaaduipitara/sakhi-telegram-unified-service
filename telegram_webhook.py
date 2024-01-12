@@ -352,7 +352,6 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
             reqBody["input"]["audienceType"] = selected_bot
         logger.info(f" API Request Body: {reqBody}")
         headers = {
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtMHk2RTE3OEY0ZjdyajFNOXU3Qk9VeHV5QThMZWhsSCJ9.EgNV6Jkv8yPWM1OgY75kB7MBIdz_vLKuki3nVOEcPS0",
             "x-source": "telegram",
             "x-request-id": str(message_id),
             "x-device-id": f"d{user_id}",
