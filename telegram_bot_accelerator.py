@@ -86,6 +86,7 @@ async def preferred_language_callback(update: Update, context: CallbackContext):
     logger.info(
         {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "language_selection",
          "label": "engine_selection", "value": preferred_language})
+    await callback_query.answer()
     await bot_handler(update, context)
     # return query_handler
 
@@ -105,6 +106,7 @@ async def preferred_bot_callback(update: Update, context: CallbackContext):
     context.user_data['botname'] = preferred_bot
     text_msg = getMessage(context, BOT_SELECTION)[preferred_bot]
     logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "bot_selection","label": "bot_selection", "value": preferred_bot})
+    await callback_query.answer()
     await context.bot.sendMessage(chat_id=update.effective_chat.id, text= text_msg, parse_mode="Markdown")
     
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -192,7 +194,6 @@ async def query_handler(update: Update, context: CallbackContext):
         voice_message_url = voice_file.file_path
         logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler","label": "voice_question", "value": voice_message_url})
     await context.bot.send_message(chat_id=update.effective_chat.id, text=getMessage(context, BOT_LODING_MSG))
-    await context.bot.sendChatAction(chat_id=update.effective_chat.id, action="typing")
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
 
