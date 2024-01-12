@@ -92,14 +92,14 @@ class ApiResponse(TypedDict):
 class ApiError(TypedDict):
     error: Union[str, requests.exceptions.RequestException]
 
-def getUserLangauge(context: CallbackContext, default_lang = None):
+def getUserLangauge(context: CustomContext, default_lang = None):
     selectedLang =  context.user_data.get('language')
     if selectedLang:
         return selectedLang
     else:
         return default_lang
 
-async def send_message_to_bot(chat_id, text, context: CallbackContext, parse_mode="Markdown", ) -> None:
+async def send_message_to_bot(chat_id, text, context: CustomContext, parse_mode="Markdown", ) -> None:
     """Send a message  to bot"""
     await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
 
@@ -121,12 +121,12 @@ def create_language_keyboard(supported_languages):
            inline_keyboard_buttons.append([button])
    return inline_keyboard_buttons
 
-async def language_handler(update: Update, context: CallbackContext):
+async def language_handler(update: Update, context: CustomContext):
     inline_keyboard_buttons = create_language_keyboard(SUPPORTED_LANGUAGES)
     reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)
     await context.bot.send_message(chat_id=update.effective_chat.id, text="\nPlease select a Language to proceed", reply_markup=reply_markup)
 
-async def preferred_language_callback(update: Update, context: CallbackContext):
+async def preferred_language_callback(update: Update, context: CustomContext):
     callback_query = update.callback_query
     preferred_language = callback_query.data[len("lang_"):]
     context.user_data['language'] = preferred_language
@@ -137,7 +137,7 @@ async def preferred_language_callback(update: Update, context: CallbackContext):
     await bot_handler(update, context)
     # return query_handler
 
-async def bot_handler(update: Update, context: CallbackContext):
+async def bot_handler(update: Update, context: CustomContext):
     button_labels = getMessage(context, BOT_NAME)
     inline_keyboard_buttons = [
         [InlineKeyboardButton(button_labels["story"], callback_data='botname_story')],
@@ -147,7 +147,7 @@ async def bot_handler(update: Update, context: CallbackContext):
     text_message = getMessage(context, LANGUAGE_SELCTION)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown")
 
-async def preferred_bot_callback(update: Update, context: CallbackContext):
+async def preferred_bot_callback(update: Update, context: CustomContext):
     callback_query = update.callback_query
     preferred_bot = callback_query.data[len("botname_"):]
     context.user_data['botname'] = preferred_bot
@@ -160,7 +160,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     """Send a message when the command /help is issued."""
     await update.message.reply_text("Help!")
 
-def getMessage(context: CallbackContext, mapping):
+def getMessage(context: CustomContext, mapping):
     selectedLang =  context.user_data.get('language', None) 
     try:
         return mapping[selectedLang]
@@ -173,7 +173,7 @@ def get_bot_endpoint(botName: str):
     else:
         return os.environ["ACTIVITY_API_BASE_URL"] + '/v1/query'
 
-async def get_query_response(query: str, voice_message_url: str, update: Update, context: CallbackContext) -> Union[
+async def get_query_response(query: str, voice_message_url: str, update: Update, context: CustomContext) -> Union[
     ApiResponse, ApiError]:
     voice_message_language = context.user_data.get('language') or DEFAULT_LANG
     selected_bot = context.user_data.get('botname') or DEFAULT_BOT
@@ -226,7 +226,7 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
 async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await query_handler(update, context)
 
-async def query_handler(update: Update, context: CallbackContext):
+async def query_handler(update: Update, context: CustomContext):
     voice_message = None
     query = None
     if update.message.text:
@@ -244,7 +244,7 @@ async def query_handler(update: Update, context: CallbackContext):
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
 
-async def handle_query_response(update: Update, context: CallbackContext, query: str, voice_message_url: str):
+async def handle_query_response(update: Update, context: CustomContext, query: str, voice_message_url: str):
     response = await get_query_response(query, voice_message_url, update, context)
     if "error" in response:
         await context.bot.send_message(chat_id=update.effective_chat.id,
