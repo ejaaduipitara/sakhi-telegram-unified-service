@@ -46,6 +46,12 @@ telemetryLogger = TelemetryLogger()
 URL = os.environ["TELEGRAM_BASE_URL"]
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 botName = os.environ['TELEGRAM_BOT_NAME']
+concurrent_updates = int(os.getenv('concurrent_updates', '50'))
+pool_time_out = int(os.getenv('pool_timeout', '30'))
+connection_pool_size = int(os.getenv('connection_pool_size', '1024'))
+connect_time_out = int(os.getenv('pool_timeout', '45'))
+read_time_out = int(os.getenv('pool_timeout', '15'))
+write_time_out = int(os.getenv('pool_timeout', '10'))
 
 try:
     from telegram import __version_info__
@@ -478,7 +484,7 @@ async def main() -> None:
     # Here we set updater to None because we want our custom webhook server to handle the updates
     # and hence we don't need an Updater instance
     application = (
-        Application.builder().token(TELEGRAM_BOT_TOKEN).updater(None).context_types(context_types).build()
+        Application.builder().token(TELEGRAM_BOT_TOKEN).updater(None).context_types(context_types).pool_timeout(pool_time_out).connection_pool_size(connection_pool_size).concurrent_updates(concurrent_updates).connect_timeout(connect_time_out).read_timeout(read_time_out).write_timeout(write_time_out).build()
     )
 
     # register handlers
