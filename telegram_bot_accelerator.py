@@ -120,7 +120,7 @@ def getMessage(context: CallbackContext, mapping):
 
 def get_bot_endpoint(botName: str):
     if botName == "story":
-        return os.environ["STORY_API_BASE_URL"] + '/v1/query'
+        return os.environ["STORY_API_BASE_URL"] + '/v1/query_rstory'
     else:
         return os.environ["ACTIVITY_API_BASE_URL"] + '/v1/query'
 
