@@ -51,7 +51,6 @@ def getUserLangauge(context: CallbackContext, default_lang = None):
     else:
         return default_lang
 
-
 async def send_message_to_bot(chat_id, text, context: CallbackContext, parse_mode="Markdown", ) -> None:
     """Send a message  to bot"""
     await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
