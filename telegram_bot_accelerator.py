@@ -1,7 +1,7 @@
 import json
 import os
 from typing import Union, TypedDict
-
+from config import LANGUAGES, LANGUAGE_SELCTION,BOT_LODING_MSG, BOT_NAME, BOT_SELECTION
 import requests
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -20,11 +20,18 @@ set_language - To choose language of your choice
 load_dotenv()
 
 botName = os.environ['TELEGRAM_BOT_NAME']
-
+DEFAULT_LANG = "en"
+DEFAULT_BOT = "story"
+SUPPORTED_LANGUAGES = os.getenv('SUPPORTED_LANGUAGES', "").split(",")
 concurrent_updates = int(os.getenv('concurrent_updates', '1'))
 pool_time_out = int(os.getenv('pool_timeout', '10'))
 connection_pool_size = int(os.getenv('connection_pool_size', '100'))
 telemetryLogger = TelemetryLogger()
+class ApiResponse(TypedDict):
+    output: any
+class ApiError(TypedDict):
+    error: Union[str, requests.exceptions.RequestException]
+
 try:
     from telegram import __version_info__
 except ImportError:
@@ -37,162 +44,40 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
 
-language_msg_mapping: dict = {
-    "en": """
-*My Jaadui Pitara*
-I am here to help you with amazing stories and activities that you can engage your children with.
+def getUserLangauge(context: CallbackContext, default_lang = None):
+    selectedLang =  context.user_data.get('language')
+    if selectedLang:
+        return selectedLang
+    else:
+        return default_lang
 
-Please select Story Sakhi for creating your own story
-Please select Parent Sakhi for getting suggestions of activities that you can engage with your children at home
-Please select Teacher Sakhi for getting suggestions of activities that you can engage with your children at school
-""",
-    "hi": """
-*मेरा जादुई पिटारा*
-मैं यहां अद्भुत कहानियों और गतिविधियों के साथ आपकी मदद करने के लिए हूं, जिनमें आप अपने बच्चों को शामिल कर सकते हैं।
-
-अपनी कहानी बनाने के लिए कहानी सखी का चयन करें
-आप घर पर अपने बच्चों के साथ शामिल करनेके गतिविधियों के सुझाव प्राप्त करने के लिए अभिभवक सखी का चयन करें 
-आप स्कूल में अपने बच्चों के साथ शामिल करनेके गतिविधियों के सुझाव प्राप्त करने के लिए शिक्षक सखी  का चयन करें 
-"""
-}
-
-lang_bot_name_mapping = {
-    "en": {
-        "story" : "Story Sakhi",
-        "teacher": "Teacher Sakhi",
-        "parent": "Parent Sakhi"
-    },
-    "hi": {
-        "story" : "कहानी सखी",
-        "teacher": "शिक्षक सखी",
-        "parent": "अभिभावक सखी"
-    }
-}
-
-bot_default_msg = {
-    "en": {
-        "story": """
-Wecome to *Story Sakhi!*
-I can create a story for you about what you ask for. 
-
-For example:
-- I can tell a story about a girl who saw the sea for the first time.
-- I can tell a story about a Monkey and a Frog
-
-Ask me about anything that you want. You can type or speak.
-""",
-    "teacher": """
-Wecome to *Teacher Sakhi!*
-I can suggest you activities that you can do with your students (of age 3 to 8 years) at schools. 
-I can also answer your questions about the play based learning suggested in the new NCF for Foundational Stage.
-Here are few examples of what you can ask.
-
-Examples:
-- What activity can I do with students to teach sorting or counting numbers
-- How can I conduct my class with children with special needs
-- What can I do to engage a child who is always distracted.
-I can answer your questions about the new NCF
-
-Ask me about anything that you want. You can type or speak.
-""",
-    "parent": """
-Wecome to *Parent Sakhi!*
-I can suggest you activities that you can do with your children at home. Here are few examples of what you can ask:
-
-Examples:
-- What activity can I do with my child using vegetables in your kitchen
-- Suggest how I can make my child interested in household activities
-- My child does not eat nutritious food, what to do
-
-Ask me about anything that you want. You can type or speak.
-"""
-    },
-    "hi": {
-       "story": """
-*कहानी सखी* में आपका स्वागत है!
-आप जो मांगेंगे उसके बारे में मैं आपके लिए एक कहानी बना सकता हूं।
-
-उदाहरण के लिए:
-- मैं उस लड़की की कहानी बता सकता हूँ जिसने पहली बार समुद्र देखा।
-- मैं एक बंदर और मेंढक के बारे में एक कहानी बता सकता हूँ
-
-आप जो चाहते हो वो मुझसे पूछ सकते हैं। आप टाइप कर सकते हैं या बोल सकते हैं।"
-""",
-    "teacher": """
-*शिक्षक सखी* में आपका स्वागत है!
-मैं आपको ऐसी गतिविधियाँ सुझा सकता हूँ जो आप स्कूलों में अपने छात्रों (3 से 8 वर्ष की आयु के) के साथ कर सकते हैं।
-मैं फाउंडेशनल स्टेज के लिए नए एनसीएफ में सुझाए गए खेल आधारित शिक्षण के बारे में आपके सवालों का जवाब भी दे सकता हूं।
-यहां कुछ उदाहरण दिए गए हैं कि आप क्या पूछ सकते हैं।
-
-उदाहरण:
-- संख्याओं को क्रमबद्ध करना या गिनना सिखाने के लिए मैं विद्यार्थियों के साथ कौन सी गतिविधि कर सकता हूँ?
-- मैं विशेष आवश्यकता वाले बच्चों के साथ अपनी कक्षा कैसे संचालित कर सकता हूँ?
-- मैं उस बच्चे को व्यस्त रखने के लिए क्या कर सकता हूं जो हमेशा विचलित रहता है?
-- मैं नए एनसीएफ के बारे में आपके सवालों का जवाब दे सकता हूं
-
-आप जो चाहते हो वो मुझसे पूछ सकते हैं। आप टाइप कर सकते हैं या बोल सकते हैं।
-""",
-    "parent": """
-*अभिबवक सखी* में आपका स्वागत है!
-मैं आपको ऐसी गतिविधियाँ सुझा सकता हूँ जो आप घर पर अपने बच्चों के साथ कर सकते हैं। यहां कुछ उदाहरण दिए गए हैं कि आप क्या पूछ सकते हैं:
-
-उदाहरण:
-- मैं आपकी रसोई में सब्जियों का उपयोग करके अपने बच्चे के साथ कौन सी गतिविधि कर सकता हूँ?
-- सुझाव दीजिए कि मैं अपने बच्चे की घरेलू गतिविधियों में रुचि कैसे पैदा कर सकता हूँ
-- मेरा बच्चा पौष्टिक खाना नहीं खाता, क्या करूं?
-
-आप जो चाहते हो वो मुझसे पूछ सकते हैं। आप टाइप कर सकते हैं या बोल सकते हैं।
-""" 
-    }
-    
-}
-
-loader_msg_mapping = {
-    "en": "Please wait, crafting response. It might take upto a minute.",
-    "hi": "कृपया प्रतीक्षा करें, प्रतिक्रिया तैयार कर रहा हूँ। इसमें एक मिनट तक लग सकता है."
-}
 
 async def send_message_to_bot(chat_id, text, context: CallbackContext, parse_mode="Markdown", ) -> None:
     """Send a message  to bot"""
     await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
-
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user_name = update.message.chat.first_name
     logger.info({"id": update.effective_chat.id, "username": user_name, "category": "logged_in", "label": "logged_in"})
     await send_message_to_bot(update.effective_chat.id, f"Namaste 🙏\nWelcome to *My Jaadui Pitara*", context)
-    await relay_handler(update, context)
+    await language_handler(update, context)
 
-
-async def relay_handler(update: Update, context: CallbackContext):
-    # setting engine manually
-    language = context.user_data.get('language')
-
-    if language is None:
-        await language_handler(update, context)
-    else:
-        await bot_handler(update, context)
-
+def create_language_keyboard(supported_languages):
+   """Creates an inline keyboard markup with buttons for supported languages."""
+   inline_keyboard_buttons = []
+   for language in LANGUAGES:
+       if language["code"] in supported_languages:
+           button = InlineKeyboardButton(
+               text=language["text"], callback_data=f"lang_{language['code']}"
+           )
+           inline_keyboard_buttons.append([button])
+   return inline_keyboard_buttons
 
 async def language_handler(update: Update, context: CallbackContext):
-    inline_keyboard_buttons = [
-        [InlineKeyboardButton('English', callback_data='lang_en')],
-        [InlineKeyboardButton('বাংলা', callback_data='lang_bn')],
-        [InlineKeyboardButton('ગુજરાતી', callback_data='lang_gu')],
-        [InlineKeyboardButton('हिंदी', callback_data='lang_hi')],
-        [InlineKeyboardButton('ಕನ್ನಡ', callback_data='lang_kn')],
-        [InlineKeyboardButton('മലയാളം', callback_data='lang_ml')],
-        [InlineKeyboardButton('मराठी', callback_data='lang_mr')], 
-        [InlineKeyboardButton('ଓଡ଼ିଆ', callback_data='lang_or')],
-        [InlineKeyboardButton('ਪੰਜਾਬੀ', callback_data='lang_pa')],
-        [InlineKeyboardButton('தமிழ்', callback_data='lang_ta')],
-        [InlineKeyboardButton('తెలుగు', callback_data='lang_te')]
-    ]
+    inline_keyboard_buttons = create_language_keyboard(SUPPORTED_LANGUAGES)
     reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)
-
     await context.bot.send_message(chat_id=update.effective_chat.id, text="\nPlease select a Language to proceed", reply_markup=reply_markup)
-
 
 async def preferred_language_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
@@ -205,43 +90,33 @@ async def preferred_language_callback(update: Update, context: CallbackContext):
     # return query_handler
 
 async def bot_handler(update: Update, context: CallbackContext):
-    language = context.user_data.get('language') or 'en'
-    button_labels = get_lang_mapping(language, lang_bot_name_mapping)
+    button_labels = getMessage(context, BOT_NAME)
     inline_keyboard_buttons = [
         [InlineKeyboardButton(button_labels["story"], callback_data='botname_story')],
         [InlineKeyboardButton(button_labels["teacher"], callback_data='botname_teacher')],
         [InlineKeyboardButton(button_labels["parent"], callback_data='botname_parent')]]    
     reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)  
-    text_message = get_lang_mapping(language, language_msg_mapping)
+    text_message = getMessage(context, LANGUAGE_SELCTION)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown")
 
 async def preferred_bot_callback(update: Update, context: CallbackContext):
-    language = context.user_data.get('language') or 'en'
     callback_query = update.callback_query
     preferred_bot = callback_query.data[len("botname_"):]
     context.user_data['botname'] = preferred_bot
-    text_msg = get_lang_mapping(language, bot_default_msg)[preferred_bot]
-    logger.info(
-        {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "bot_selection",
-         "label": "bot_selection", "value": preferred_bot})
+    text_msg = getMessage(context, BOT_SELECTION)[preferred_bot]
+    logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "bot_selection","label": "bot_selection", "value": preferred_bot})
     await context.bot.sendMessage(chat_id=update.effective_chat.id, text= text_msg, parse_mode="Markdown")
     
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
     await update.message.reply_text("Help!")
 
-def get_lang_mapping(language, mapping, default_lang = "en"):
+def getMessage(context: CallbackContext, mapping):
+    selectedLang =  context.user_data.get('language', None) 
     try:
-        return mapping[language]
+        return mapping[selectedLang]
     except:
-        return mapping[default_lang]
-
-class ApiResponse(TypedDict):
-    output: any
-
-
-class ApiError(TypedDict):
-    error: Union[str, requests.exceptions.RequestException]
+        return mapping[DEFAULT_LANG]
 
 def get_bot_endpoint(botName: str):
     if botName == "story":
@@ -251,8 +126,8 @@ def get_bot_endpoint(botName: str):
 
 async def get_query_response(query: str, voice_message_url: str, update: Update, context: CallbackContext) -> Union[
     ApiResponse, ApiError]:
-    voice_message_language = context.user_data.get('language') or 'en'
-    selected_bot = context.user_data.get('botname') or 'story'
+    voice_message_language = context.user_data.get('language') or DEFAULT_LANG
+    selected_bot = context.user_data.get('botname') or DEFAULT_BOT
     user_id = update.message.from_user.id
     message_id = update.message.message_id
     url = get_bot_endpoint(selected_bot)
@@ -299,20 +174,15 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
     except (KeyError, ValueError):
         return {'error': 'Invalid response received from API'}
 
-
 async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await query_handler(update, context)
-
 
 async def query_handler(update: Update, context: CallbackContext):
     voice_message = None
     query = None
-    selected_language = context.user_data.get('language') or 'en'
     if update.message.text:
         query = update.message.text
-        logger.info(
-            {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler",
-             "label": "question", "value": query})
+        logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler","label": "question", "value": query})
     elif update.message.voice:
         voice_message = update.message.voice
 
@@ -320,14 +190,11 @@ async def query_handler(update: Update, context: CallbackContext):
     if voice_message is not None:
         voice_file = await voice_message.get_file()
         voice_message_url = voice_file.file_path
-        logger.info(
-            {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler",
-             "label": "voice_question", "value": voice_message_url})
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=get_lang_mapping(selected_language, loader_msg_mapping))
+        logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler","label": "voice_question", "value": voice_message_url})
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=getMessage(context, BOT_LODING_MSG))
     await context.bot.sendChatAction(chat_id=update.effective_chat.id, action="typing")
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
-
 
 async def handle_query_response(update: Update, context: CallbackContext, query: str, voice_message_url: str):
     response = await get_query_response(query, voice_message_url, update, context)
@@ -362,8 +229,9 @@ async def preferred_feedback_callback(update: Update, context: ContextTypes.DEFA
     """Parses the CallbackQuery and updates the message text."""
     query = update.callback_query
     queryData = query.data.split("__")
-    selected_bot = context.user_data.get('botname') or 'story'
+    selected_bot = context.user_data.get('botname') or DEFAULT_BOT
     user_id = update.callback_query.from_user.id
+    message_id = queryData[1]
     eventData = {
         "x-source": "telegram",
         "x-request-id": str(queryData[1]),
@@ -393,7 +261,6 @@ async def preferred_feedback_reply_callback(update: Update, context: ContextType
     # # CallbackQueries need to be answered, even if no notification to the user is needed
     # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     await query.answer()
-
 
 def main() -> None:
     logger.info('################################################')
