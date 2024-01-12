@@ -49,9 +49,9 @@ botName = os.environ['TELEGRAM_BOT_NAME']
 concurrent_updates = int(os.getenv('concurrent_updates', '50'))
 pool_time_out = int(os.getenv('pool_timeout', '30'))
 connection_pool_size = int(os.getenv('connection_pool_size', '1024'))
-connect_time_out = int(os.getenv('pool_timeout', '45'))
-read_time_out = int(os.getenv('pool_timeout', '15'))
-write_time_out = int(os.getenv('pool_timeout', '10'))
+connect_time_out = int(os.getenv('connect_timeout', '45'))
+read_time_out = int(os.getenv('read_timeout', '15'))
+write_time_out = int(os.getenv('write_timeout', '10'))
 
 try:
     from telegram import __version_info__
