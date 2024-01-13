@@ -182,7 +182,7 @@ async def preferred_language_callback(update: Update, context: CustomContext):
 
 
 async def bot_handler(update: Update, context: CustomContext):
-    button_labels = getMessage(context, BOT_NAME)
+    button_labels = getMessage(update, context, BOT_NAME)
     inline_keyboard_buttons = [
         [InlineKeyboardButton(button_labels["story"], callback_data='botname_story')],
         [InlineKeyboardButton(button_labels["teacher"], callback_data='botname_teacher')],
@@ -296,7 +296,7 @@ async def query_handler(update: Update, context: CustomContext):
         voice_file = await voice_message.get_file()
         voice_message_url = voice_file.file_path
         logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler", "label": "voice_question", "value": voice_message_url})
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=getMessage(context, BOT_LODING_MSG))
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=getMessage(update, context, BOT_LODING_MSG))
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
 
