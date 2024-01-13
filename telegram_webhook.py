@@ -379,7 +379,7 @@ async def main() -> None:
     # Here we set updater to None because we want our custom webhook server to handle the updates.persistence(persistence)
     # and hence we don't need an Updater instance
     application = (
-        Application.builder().token(TELEGRAM_BOT_TOKEN).updater(None).context_types(context_types).pool_timeout(pool_time_out).connection_pool_size(connection_pool_size).concurrent_updates(True, concurrent_updates).connect_timeout(
+        Application.builder().token(TELEGRAM_BOT_TOKEN).updater(None).context_types(context_types).pool_timeout(pool_time_out).connection_pool_size(connection_pool_size).concurrent_updates(True).concurrent_updates(concurrent_updates).connect_timeout(
             connect_time_out).read_timeout(read_time_out).write_timeout(write_time_out).build()
     )
 
