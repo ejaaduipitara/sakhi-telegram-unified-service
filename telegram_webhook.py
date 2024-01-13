@@ -384,14 +384,14 @@ async def main() -> None:
     )
 
     # register handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler('select_language', language_handler))
-    application.add_handler(CommandHandler('select_bot', bot_handler))
-    application.add_handler(CallbackQueryHandler(preferred_language_callback, pattern=r'lang_\w*'))
-    application.add_handler(CallbackQueryHandler(preferred_bot_callback, pattern=r'botname_\w*'))
-    application.add_handler(CallbackQueryHandler(preferred_feedback_callback, pattern=r'message-\w*'))
-    application.add_handler(CallbackQueryHandler(preferred_feedback_reply_callback, pattern=r'replymessage_\w*'))
+    application.add_handler(CommandHandler("start", start, block=False))
+    application.add_handler(CommandHandler("help", help_command, block=False))
+    application.add_handler(CommandHandler('select_language', language_handler, block=False))
+    application.add_handler(CommandHandler('select_bot', bot_handler, block=False))
+    application.add_handler(CallbackQueryHandler(preferred_language_callback, pattern=r'lang_\w*', block=False))
+    application.add_handler(CallbackQueryHandler(preferred_bot_callback, pattern=r'botname_\w*', block=False))
+    application.add_handler(CallbackQueryHandler(preferred_feedback_callback, pattern=r'message-\w*', block=False))
+    application.add_handler(CallbackQueryHandler(preferred_feedback_reply_callback, pattern=r'replymessage_\w*', block=False))
     application.add_handler(MessageHandler(filters.TEXT | filters.VOICE, response_handler, block=False))
 
     # Pass webhook settings to telegram
