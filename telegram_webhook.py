@@ -57,7 +57,7 @@ read_time_out = int(os.getenv('read_timeout', '15'))
 write_time_out = int(os.getenv('write_timeout', '10'))
 workers = int(os.getenv("UVICORN_WORKERS", "4"))
 redis_host = os.getenv("REDIS_HOST", "172.17.0.1")
-redis_port = int(os.getenv("REDIS_HOST", "6379"))
+redis_port = int(os.getenv("REDIS_PORT", "6379"))
 redis_index = int(os.getenv("REDIS_INDEX", "1"))
 
 try:
