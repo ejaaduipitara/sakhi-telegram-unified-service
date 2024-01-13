@@ -392,7 +392,7 @@ async def main() -> None:
     application.add_handler(CallbackQueryHandler(preferred_bot_callback, pattern=r'botname_\w*'))
     application.add_handler(CallbackQueryHandler(preferred_feedback_callback, pattern=r'message-\w*'))
     application.add_handler(CallbackQueryHandler(preferred_feedback_reply_callback, pattern=r'replymessage_\w*'))
-    application.add_handler(MessageHandler(filters.TEXT | filters.VOICE, response_handler))
+    application.add_handler(MessageHandler(filters.TEXT | filters.VOICE, response_handler, block=False))
 
     # Pass webhook settings to telegram
     await application.bot.set_webhook(url=f"{TELEGRAM_BASE_URL}/telegram", allowed_updates=Update.ALL_TYPES)
