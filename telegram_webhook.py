@@ -188,7 +188,7 @@ async def bot_handler(update: Update, context: CustomContext):
         [InlineKeyboardButton(button_labels["teacher"], callback_data='botname_teacher')],
         [InlineKeyboardButton(button_labels["parent"], callback_data='botname_parent')]]
     reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)
-    text_message = getMessage(context, LANGUAGE_SELCTION)
+    text_message = getMessage(update, context, LANGUAGE_SELCTION)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown")
 
 
