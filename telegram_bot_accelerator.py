@@ -1,7 +1,7 @@
 import json
 import os
 from typing import Union, TypedDict
-from config import LANGUAGES, LANGUAGE_SELCTION,BOT_LODING_MSG, BOT_NAME, BOT_SELECTION
+from config import LANGUAGES, LANGUAGE_SELCTION,BOT_LODING_MSG, BOT_NAME, BOT_SELECTION, API_ERROR_MSG
 import requests
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -51,6 +51,7 @@ def getUserLangauge(context: CallbackContext, default_lang = None):
     else:
         return default_lang
 
+
 async def send_message_to_bot(chat_id, text, context: CallbackContext, parse_mode="Markdown", ) -> None:
     """Send a message  to bot"""
     await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
@@ -59,7 +60,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user_name = update.message.chat.first_name
     logger.info({"id": update.effective_chat.id, "username": user_name, "category": "logged_in", "label": "logged_in"})
-    await send_message_to_bot(update.effective_chat.id, f"Namaste 🙏\nWelcome to *My Jaadui Pitara*", context)
+    await send_message_to_bot(update.effective_chat.id, f"Namaste 🙏\nWelcome to *e-Jaadui Pitara*", context)
     await language_handler(update, context)
 
 def create_language_keyboard(supported_languages):
@@ -85,6 +86,7 @@ async def preferred_language_callback(update: Update, context: CallbackContext):
     logger.info(
         {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "language_selection",
          "label": "engine_selection", "value": preferred_language})
+    await callback_query.answer()
     await bot_handler(update, context)
     # return query_handler
 
@@ -104,6 +106,7 @@ async def preferred_bot_callback(update: Update, context: CallbackContext):
     context.user_data['botname'] = preferred_bot
     text_msg = getMessage(context, BOT_SELECTION)[preferred_bot]
     logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "bot_selection","label": "bot_selection", "value": preferred_bot})
+    await callback_query.answer()
     await context.bot.sendMessage(chat_id=update.effective_chat.id, text= text_msg, parse_mode="Markdown")
     
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -191,15 +194,14 @@ async def query_handler(update: Update, context: CallbackContext):
         voice_message_url = voice_file.file_path
         logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler","label": "voice_question", "value": voice_message_url})
     await context.bot.send_message(chat_id=update.effective_chat.id, text=getMessage(context, BOT_LODING_MSG))
-    await context.bot.sendChatAction(chat_id=update.effective_chat.id, action="typing")
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
 
 async def handle_query_response(update: Update, context: CallbackContext, query: str, voice_message_url: str):
     response = await get_query_response(query, voice_message_url, update, context)
     if "error" in response:
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                               text='An error has been encountered. Please try again.')
+        errorMsg = getMessage(context, API_ERROR_MSG)
+        await context.bot.send_message(chat_id=update.effective_chat.id,text=errorMsg)
         info_msg = {"id": update.effective_chat.id, "username": update.effective_chat.first_name,
                     "category": "handle_query_response", "label": "question_sent", "value": query}
         logger.info(info_msg)
