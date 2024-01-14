@@ -36,7 +36,7 @@ from telegram.ext import (
     CallbackQueryHandler, MessageHandler,
 )
 from telegram.ext import filters
-from config import LANGUAGES, LANGUAGE_SELCTION, BOT_LODING_MSG, BOT_NAME, BOT_SELECTION
+from config import LANGUAGES, LANGUAGE_SELCTION, BOT_LODING_MSG, BOT_NAME, BOT_SELECTION, API_ERROR_MSG
 from logger import logger
 from telemetry_logger import TelemetryLogger
 
@@ -145,7 +145,7 @@ async def start(update: Update, context: CustomContext) -> None:
     """Send a message when the command /start is issued."""
     user_name = update.message.chat.first_name
     logger.info({"id": update.effective_chat.id, "username": user_name, "category": "logged_in", "label": "logged_in"})
-    await send_message_to_bot(update.effective_chat.id, f"Namaste 🙏\nWelcome to *My Jaadui Pitara*", context)
+    await send_message_to_bot(update.effective_chat.id, f"Namaste 🙏\nWelcome to *e-Jaadui Pitara*", context)
     await language_handler(update, context)
 
 
@@ -304,8 +304,8 @@ async def query_handler(update: Update, context: CustomContext):
 async def handle_query_response(update: Update, context: CustomContext, query: str, voice_message_url: str):
     response = await get_query_response(query, voice_message_url, update, context)
     if "error" in response:
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text='An error has been encountered. Please try again.')
+        errorMsg = getMessage(context, API_ERROR_MSG)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=errorMsg)
         info_msg = {"id": update.effective_chat.id, "username": update.effective_chat.first_name,
                     "category": "handle_query_response", "label": "question_sent", "value": query}
         logger.info(info_msg)
