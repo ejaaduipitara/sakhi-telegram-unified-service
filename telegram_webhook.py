@@ -304,8 +304,8 @@ async def query_handler(update: Update, context: CustomContext):
 async def handle_query_response(update: Update, context: CustomContext, query: str, voice_message_url: str):
     response = await get_query_response(query, voice_message_url, update, context)
     if "error" in response:
-        errorMsg = getMessage(context, API_ERROR_MSG)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=errorMsg)
+        error_msg = getMessage(update, context, API_ERROR_MSG)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=error_msg)
         info_msg = {"id": update.effective_chat.id, "username": update.effective_chat.first_name,
                     "category": "handle_query_response", "label": "question_sent", "value": query}
         logger.info(info_msg)
