@@ -9,6 +9,7 @@ The Sakhi Telegram Bot is a Python-based bot that interacts with the Sakhi API S
 - Redis (for user session)
 - python-telegram-bot library
 - Telegram bot token
+- Secure public domain to configure webhook URL. (use [ngrok](https://ngrok.com/) for local setup)
 
 ## Installation
 
