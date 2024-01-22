@@ -58,14 +58,14 @@ The Sakhi Telegram Bot is a Python-based bot that interacts with the Sakhi API S
 
 3. Once the Telegram bot is up and running, you can interact with it through your Telegram chat. Start a chat with the bot and use the available commands and features to perform actions and retrieve information from the API Server.
 
-  - The bot provides the following commands:
+   - The bot provides the following commands:
 
-    ```bash 
-    /start: Start the conversation with the bot
+      ```bash 
+      /start: Start the conversation with the bot
 
-  - Select preferred language
-  - Select the bot
-  - Start querying questions
+   - Select preferred language
+   - Select the bot
+   - Start querying questions
 
 ## Contributing
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
