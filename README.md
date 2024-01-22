@@ -8,7 +8,6 @@ The Sakhi Telegram Bot is a Python-based bot that interacts with the Sakhi API S
 - Starlette
 - Redis (for user session)
 - python-telegram-bot library
-- SSL/TLS certificate for secure webhook communication
 - Telegram bot token
 
 ## Installation
