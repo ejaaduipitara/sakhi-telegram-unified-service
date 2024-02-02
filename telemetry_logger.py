@@ -3,6 +3,7 @@ import time
 import os
 import uuid
 from logger import logger
+from config import TELEGRAM_SERVICE_ID, TELEGRAM_PDATA_ID, TELEGRAM_CHANNEL
 
 telemetryURL = os.environ.get("TELEMETRY_ENDPOINT_URL", "")
 ENV_NAME = os.environ.get("SERVICE_ENVIRONMENT","dev")
@@ -41,7 +42,7 @@ class TelemetryLogger:
         """
         try:
             data = {
-                    "id": "api.djp.telemetry",
+                    "id": TELEGRAM_SERVICE_ID,
                     "ver": "3.1",
                     "params": {"msgid": str(uuid.uuid4())},
                     "ets": int(time.time() * 1000),
@@ -79,9 +80,9 @@ class TelemetryLogger:
                 "type": "System",
             },
             "context": {
-                "channel": "ejp",
+                "channel": TELEGRAM_CHANNEL,
                  "pdata": {
-                    "id": "ejp.story.api.service",
+                    "id": TELEGRAM_PDATA_ID,
                     "ver": "1.0",
                     "pid": ""
                 },
@@ -129,9 +130,9 @@ class TelemetryLogger:
                 "type": "System",
             },
             "context": {
-                "channel": "ejp",
+                "channel": TELEGRAM_CHANNEL,
                  "pdata": {
-                    "id": "ejp.telegram.bot",
+                    "id": TELEGRAM_PDATA_ID,
                     "ver": "1.0",
                     "pid": "telegrambot"
                 },

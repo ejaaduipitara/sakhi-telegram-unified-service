@@ -1,4 +1,8 @@
 
+TELEGRAM_SERVICE_ID = "api.djp.telemetry"
+TELEGRAM_CHANNEL = "ejp"
+TELEGRAM_PDATA_ID = "ejp.sakhi.api.service"
+
 LANGUAGE_SELCTION = {
     "en": """
 *e-Jaadui Pitara*
