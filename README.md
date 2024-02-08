@@ -55,7 +55,7 @@ The Sakhi Telegram Bot is a Python-based bot that interacts with the Sakhi API S
 
 2. Start the Starlette app:
    ```bash
-   python telegram_webhook.py
+   python3 telegram_webhook.py
 
 3. Once the Telegram bot is up and running, you can interact with it through your Telegram chat. Start a chat with the bot and use the available commands and features to perform actions and retrieve information from the API Server.
 
