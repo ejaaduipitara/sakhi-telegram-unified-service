@@ -3,18 +3,24 @@ import time
 import os
 import uuid
 from logger import logger
-from config import TELEGRAM_SERVICE_ID, TELEGRAM_PDATA_ID, TELEGRAM_CHANNEL
+from config_util import get_config_value
 
-telemetryURL = os.environ.get("TELEMETRY_ENDPOINT_URL", "")
-ENV_NAME = os.environ.get("SERVICE_ENVIRONMENT","dev")
-TELEMETRY_LOG_ENABLED = os.environ.get("TELEMETRY_LOG_ENABLED", "true").lower() == "true"
+telemetryURL = get_config_value('telemetry', 'TELEMETRY_ENDPOINT_URL', None)
+ENV_NAME = get_config_value('telemetry', 'SERVICE_ENVIRONMENT', None)
+TELEMETRY_LOG_ENABLED = get_config_value('telemetry', 'TELEMETRY_LOG_ENABLED', None).lower() == "true"
+telemetry_id = get_config_value('telemetry', 'service_id', None)
+telemetry_ver = get_config_value('telemetry', 'service_ver', None)
+actor_id = get_config_value('telemetry', 'actor_id', None)
+channel = get_config_value('telemetry', 'channel', None)
+pdata_id = get_config_value('telemetry', 'pdata_id', None)
+events_threshold = get_config_value('telemetry', 'events_threshold', None)
 
 class TelemetryLogger:
     """
     A class to capture and send telemetry logs using the requests library with threshold limit.
     """
 
-    def __init__(self, url=telemetryURL, threshold=5):
+    def __init__(self, url=telemetryURL, threshold=int(events_threshold)):
         self.url = url
         self.events = []  # Store multiple events before exceeding threshold
         self.threshold = threshold
@@ -42,8 +48,8 @@ class TelemetryLogger:
         """
         try:
             data = {
-                    "id": TELEGRAM_SERVICE_ID,
-                    "ver": "3.1",
+                    "id": telemetry_id,
+                    "ver": telemetry_ver,
                     "params": {"msgid": str(uuid.uuid4())},
                     "ets": int(time.time() * 1000),
                     "events": self.events
@@ -58,58 +64,6 @@ class TelemetryLogger:
         except requests.exceptions.RequestException as e:
             logger.error(f"Error sending telemetry log: {e}", exc_info=True)    
 
-    def prepare_log_event(self, eventInput: dict, etype="api_access", elevel="INFO", message=""):
-        """
-        Prepare a telemetry event dictionary with the specified values. 
-        Args:
-            eventInput: Event Input.
-            etype: Event type (default: "api_access").
-            elevel: Event level (default: "INFO").
-            message: Event message.
-
-        Returns:
-            A dictionary representing the telemetry event data.
-        """
-        data = {
-            "eid": "LOG",
-            "ets": int(time.time() * 1000),  # Current timestamp
-            "ver": "3.1",  # Version
-            "mid": f"LOG:{round(time.time())}",  # Unique message ID
-            "actor": {
-                "id": "story-api-service",
-                "type": "System",
-            },
-            "context": {
-                "channel": TELEGRAM_CHANNEL,
-                 "pdata": {
-                    "id": TELEGRAM_PDATA_ID,
-                    "ver": "1.0",
-                    "pid": ""
-                },
-                "env": ENV_NAME
-            },
-            "edata": {
-                "type": etype,
-                "level": elevel,
-                "message": str(message).replace("'", "")
-            }
-        }
-
-        if eventInput.get("x-request-id", None):
-            data["context"]["sid"] = eventInput.get("x-request-id")
-
-        if eventInput.get("x-device-id", None):
-            data["context"]["did"] = eventInput.get("x-device-id")
-
-        eventCData = self.__getEventCData(eventInput)
-        if eventCData:
-            data["context"]["cdata"] = eventCData
-
-        eventEDataParams = self.__getEventEDataParams(eventInput)
-        if eventEDataParams:
-            data["edata"]["params"] = eventEDataParams
-        return data
-    
     def prepare_interect_event(self, eventInput: dict, etype="TOUCH"):
         """
         Prepare a telemetry event dictionary with the specified values. 
@@ -126,13 +80,13 @@ class TelemetryLogger:
             "ver": "3.1",  # Version
             "mid": f"INTERACT:{round(time.time())}",  # Unique message ID
             "actor": {
-                "id": "telegrambot",
+                "id": actor_id,
                 "type": "System",
             },
             "context": {
-                "channel": TELEGRAM_CHANNEL,
+                "channel": channel,
                  "pdata": {
-                    "id": TELEGRAM_PDATA_ID,
+                    "id": pdata_id,
                     "ver": "1.0",
                     "pid": "telegrambot"
                 },
