@@ -41,7 +41,7 @@ from telegram.ext import filters
 from config_util import get_config_value
 from logger import logger
 from telemetry_logger import TelemetryLogger
-
+from telegram.helpers import escape_markdown
 telemetryLogger = TelemetryLogger()
 # Define configuration constants
 TELEGRAM_BASE_URL = os.environ["TELEGRAM_BASE_URL"]
@@ -320,7 +320,7 @@ async def handle_query_response(update: Update, context: CustomContext, query: s
              InlineKeyboardButton("👎🏻", callback_data=f'message-disliked__{update.message.id}')]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=answer, parse_mode="Markdown")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=escape_markdown(answer), parse_mode="Markdown")
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Please provide your feedback", parse_mode="Markdown", reply_markup=reply_markup)
         if response['output']["audio"]:
             audio_output_url = response['output']["audio"]
