@@ -1,6 +1,5 @@
 import os
 from configparser import ConfigParser
-from fastapi import HTTPException, status
 from logger import logger
 
 config_file_path = 'config.ini'  # Update with your config file path
@@ -20,6 +19,6 @@ def get_config_value(section, key, default=None):
         except Exception as e:
             logger.error(
                 {"Exception": f"Error reading config file: {e}"})
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error while reading configuration: "+key)
+            raise ValueError(f"Missing configuration variable '{key}' in section '{section}'")
 
     return value
