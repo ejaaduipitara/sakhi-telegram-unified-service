@@ -135,7 +135,7 @@ def get_user_bot(update: Update, default_bot=DEFAULT_BOT) -> str:
         return default_bot
 
 
-async def send_message_to_bot(chat_id, text, context: CustomContext, parse_mode="Markdown", ) -> None:
+async def send_message_to_bot(chat_id, text, context: CustomContext, parse_mode="Markdown") -> None:
     """Send a message  to bot"""
     await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
 
@@ -144,7 +144,7 @@ async def start(update: Update, context: CustomContext) -> None:
     """Send a message when the command /start is issued."""
     user_name = update.message.chat.first_name
     logger.info({"id": update.effective_chat.id, "username": user_name, "category": "logged_in", "label": "logged_in"})
-    await send_message_to_bot(update.effective_chat.id, get_message(key="default_msg"), context)
+    await send_message_to_bot(update.effective_chat.id, get_config_value('default', 'welcome_msg', None), context)
     await language_handler(update, context)
 
 
@@ -190,10 +190,14 @@ def create_bot_keyboard_buttons(bots: List[dict]):
 async def bot_handler(update: Update, context: CustomContext):
     selected_language = get_user_langauge(update)
     bot_options = get_message(language=selected_language, key="bots")
-    reply_markup = create_bot_keyboard_buttons(bot_options)
-    text_message = get_message(language=selected_language, key="language_selection")
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown")
-
+    text_message = get_message(language=selected_language, key="default_bot_selection")
+    reply_markup = None
+    if bot_options:
+        reply_markup = create_bot_keyboard_buttons(bot_options)
+        text_message = get_message(language=selected_language, key="language_selection")
+    
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown") 
+        
 
 async def preferred_bot_callback(update: Update, context: CustomContext):
     callback_query = update.callback_query
