@@ -59,7 +59,7 @@ redis_port = int(os.getenv("REDIS_PORT", "6379"))
 redis_index = int(os.getenv("REDIS_INDEX", "1"))
 DEFAULT_BOT = get_config_value('default', 'bot', None)
 DEFAULT_LANGUAGE = get_config_value('default', 'language', None)
-CONVERSE_ENABLED = get_config_value('default', 'converse_enabled', "false").lower() == "true"
+CONVERSE_ENABLED = get_config_value('default', 'converse_enabled').lower() == "true"
 try:
     from telegram import __version_info__
 except ImportError:
