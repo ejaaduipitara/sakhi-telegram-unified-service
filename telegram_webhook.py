@@ -57,7 +57,7 @@ workers = int(os.getenv("UVICORN_WORKERS", "4"))
 redis_host = os.getenv("REDIS_HOST", "172.17.0.1")
 redis_port = int(os.getenv("REDIS_PORT", "6379"))
 redis_index = int(os.getenv("REDIS_INDEX", "1"))
-DEFAULT_BOT = get_config_value('default', 'bot', None)
+DEFAULT_CONTEXT = get_config_value('default', 'context', None)
 DEFAULT_LANGUAGE = get_config_value('default', 'language', None)
 CONVERSE_ENABLED = get_config_value('default', 'converse_enabled').lower() == "true"
 try:
@@ -127,13 +127,13 @@ def get_user_langauge(update: Update, default_lang=DEFAULT_LANGUAGE) -> str:
         return default_lang
 
 
-def get_user_bot(update: Update, default_bot=DEFAULT_BOT) -> str:
-    user_id_bot = str(update.effective_chat.id) + '_bot'
-    selected_bot = retrieve_data(user_id_bot)
-    if selected_bot:
-        return selected_bot
+def get_user_context(update: Update, default_context=DEFAULT_CONTEXT) -> str:
+    user_context_id = str(update.effective_chat.id) + '_context'
+    selected_context = retrieve_data(user_context_id)
+    if selected_context:
+        return selected_context
     else:
-        return default_bot
+        return default_context
 
 
 async def send_message_to_bot(chat_id, text, context: CustomContext, parse_mode="Markdown") -> None:
@@ -178,37 +178,37 @@ async def preferred_language_callback(update: Update, context: CustomContext):
         {"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "language_selection",
          "label": "engine_selection", "value": preferred_language})
     await callback_query.answer()
-    await bot_handler(update, context)
+    await context_handler(update, context)
     # return query_handler
 
-def create_bot_keyboard_buttons(bots: List[dict]):
+def create_context_keyboard_buttons(contexts: List[dict]):
     inline_keyboard_buttons = []
-    for bot in bots:
+    for context in contexts:
         inline_keyboard_buttons.append(
-        [InlineKeyboardButton(bot["label"], callback_data=f'botname_{bot["value"]}')])
+        [InlineKeyboardButton(context["label"], callback_data=f'contextname_{context["value"]}')])
     return InlineKeyboardMarkup(inline_keyboard_buttons)
 
-async def bot_handler(update: Update, context: CustomContext):
+async def context_handler(update: Update, context: CustomContext):
     selected_language = get_user_langauge(update)
-    bot_options = get_message(language=selected_language, key="bots")
-    text_message = get_message(language=selected_language, key="default_bot_selection")
+    context_options = get_message(language=selected_language, key="context")
+    text_message = get_message(language=selected_language, key="default_context_selection")
     reply_markup = None
-    if bot_options:
-        reply_markup = create_bot_keyboard_buttons(bot_options)
+    if context_options:
+        reply_markup = create_context_keyboard_buttons(context_options)
         text_message = get_message(language=selected_language, key="language_selection")
     
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown") 
         
 
-async def preferred_bot_callback(update: Update, context: CustomContext):
+async def preferred_context_callback(update: Update, context: CustomContext):
     callback_query = update.callback_query
-    preferred_bot = callback_query.data[len("botname_"):]
-    context.user_data['botname'] = preferred_bot
-    user_id_bot = str(update.effective_chat.id) + '_bot'
-    store_data(user_id_bot, preferred_bot)
+    preferred_context = callback_query.data[len("contextname_"):]
+    context.user_data['contextname'] = preferred_context
+    user_context_id = str(update.effective_chat.id) + '_context'
+    store_data(user_context_id, preferred_context)
     selected_language = get_user_langauge(update)
-    text_msg = get_message(selected_language,"bot_selection", preferred_bot)
-    logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "bot_selection", "label": "bot_selection", "value": preferred_bot})
+    text_msg = get_message(selected_language,"context_selection", preferred_context)
+    logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "context_selection", "label": "context_selection", "value": preferred_context})
     await callback_query.answer()
     await context.bot.sendMessage(chat_id=update.effective_chat.id, text=text_msg, parse_mode="Markdown")
 
@@ -217,8 +217,8 @@ async def help_command(update: Update, context: CustomContext) -> None:
     """Send a message when the command /help is issued."""
     await update.message.reply_text("Help!")
 
-def get_bot_endpoint(botName: str):
-    if botName == "story":
+def get_bot_endpoint(contextName: str):
+    if contextName == "story":
         return os.environ["STORY_API_BASE_URL"] + '/v1/query_rstory'
     else:
         activity_url = os.environ["ACTIVITY_API_BASE_URL"]
@@ -230,13 +230,13 @@ def get_bot_endpoint(botName: str):
 async def get_query_response(query: str, voice_message_url: str, update: Update, context: CustomContext) -> Union[
     ApiResponse, ApiError]:
     voice_message_language = get_user_langauge(update)
-    selected_bot = get_user_bot(update)
+    selected_context = get_user_context(update)
     context.user_data['language'] = voice_message_language
-    context.user_data['botname'] = selected_bot
+    context.user_data['contextname'] = selected_context
     logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "language_selected": voice_message_language, "bot_selected": selected_bot})
     user_id = update.message.from_user.id
     message_id = update.message.message_id
-    url = get_bot_endpoint(selected_bot)
+    url = get_bot_endpoint(selected_context)
     try:
         reqBody: dict
         if voice_message_url is None:
@@ -260,8 +260,8 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
                 }
             }
 
-        if selected_bot != "story":
-            reqBody["input"]["audienceType"] = selected_bot
+        if selected_context != "story":
+            reqBody["input"]["audienceType"] = selected_context
         logger.info(f" API Request Body: {reqBody}")
         headers = {
             "x-source": "telegram",
@@ -300,7 +300,7 @@ async def query_handler(update: Update, context: CustomContext):
         voice_message_url = voice_file.file_path
         logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "category": "query_handler", "label": "voice_question", "value": voice_message_url})
     selected_language = get_user_langauge(update)
-    loading_msg = get_message(language=selected_language, key="bot_loading_msg")
+    loading_msg = get_message(language=selected_language, key="context_loading_msg")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=loading_msg)
     await handle_query_response(update, context, query, voice_message_url)
     return query_handler
@@ -310,7 +310,7 @@ async def handle_query_response(update: Update, context: CustomContext, query: s
     response = await get_query_response(query, voice_message_url, update, context)
     if "error" in response:
         selected_language = get_user_langauge(update)
-        error_msg = get_message(language=selected_language, key="bot_error_msg")
+        error_msg = get_message(language=selected_language, key="context_error_msg")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=error_msg)
         info_msg = {"id": update.effective_chat.id, "username": update.effective_chat.first_name,
                     "category": "handle_query_response", "label": "question_sent", "value": query}
@@ -341,7 +341,7 @@ async def preferred_feedback_callback(update: Update, context: CustomContext) ->
     """Parses the CallbackQuery and updates the message text."""
     query = update.callback_query
     queryData = query.data.split("__")
-    selected_bot = get_user_bot(update)
+    selected_context = get_user_context(update)
     user_id = update.callback_query.from_user.id
     eventData = {
         "x-source": "telegram",
@@ -349,7 +349,7 @@ async def preferred_feedback_callback(update: Update, context: CustomContext) ->
         "x-device-id": f"d{user_id}",
         "x-consumer-id": str(user_id),
         "subtype": queryData[0],
-        "edataId": selected_bot
+        "edataId": selected_context
     }
     interectEvent = telemetryLogger.prepare_interect_event(eventData)
     telemetryLogger.add_event(interectEvent)
@@ -393,9 +393,9 @@ async def main() -> None:
     application.add_handler(CommandHandler("start", start, block=False))
     application.add_handler(CommandHandler("help", help_command, block=False))
     application.add_handler(CommandHandler('select_language', language_handler, block=False))
-    application.add_handler(CommandHandler('select_bot', bot_handler, block=False))
+    application.add_handler(CommandHandler('select_context', context_handler, block=False))
     application.add_handler(CallbackQueryHandler(preferred_language_callback, pattern=r'lang_\w*', block=False))
-    application.add_handler(CallbackQueryHandler(preferred_bot_callback, pattern=r'botname_\w*', block=False))
+    application.add_handler(CallbackQueryHandler(preferred_context_callback, pattern=r'contextname_\w*', block=False))
     application.add_handler(CallbackQueryHandler(preferred_feedback_callback, pattern=r'message-\w*', block=False))
     application.add_handler(CallbackQueryHandler(preferred_feedback_reply_callback, pattern=r'replymessage_\w*', block=False))
     application.add_handler(MessageHandler(filters.TEXT | filters.VOICE, response_handler, block=False))
