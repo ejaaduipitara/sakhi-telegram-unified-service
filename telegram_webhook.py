@@ -233,7 +233,7 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
     selected_context = get_user_context(update)
     context.user_data['language'] = voice_message_language
     context.user_data['contextname'] = selected_context
-    logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "language_selected": voice_message_language, "bot_selected": selected_bot})
+    logger.info({"id": update.effective_chat.id, "username": update.effective_chat.first_name, "language_selected": voice_message_language, "bot_selected": selected_context})
     user_id = update.message.from_user.id
     message_id = update.message.message_id
     url = get_bot_endpoint(selected_context)
