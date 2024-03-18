@@ -65,8 +65,27 @@ The Sakhi Telegram Bot is a Python-based bot that interacts with the Sakhi API S
       /start: Start the conversation with the bot
 
    - Select preferred language
-   - Select the bot
+   - Select the context (If multiple context configurations are configured)
    - Start querying questions
+
+## Configuration (config.ini)
+
+| Variable                        | Description                                                                                    | Default Value                        |
+|:--------------------------------|------------------------------------------------------------------------------------------------|--------------------------------------|
+| default.context                | Context of the bot based on which indexing and retrieval of documents and LLM response is based on |             story                         |
+| default.language      | This configuration sets the default language for the chatbot interaction. When a user starts a conversation, the chatbot will use this language unless explicitly changed. | en                                    |
+| default.welcome_msg         | This configuration defines the initial message displayed by the chatbot when a user starts a conversation.      | Namaste 🙏 Welcome to *e-Jaadui Pitara* _(Powered by Bhashini)_                                |
+| default.languages    | This configuration specifies the list of languages displayed by the chatbot  when a user starts a conversation.                                                           |  For example: [{"text": "English", "code": "en","index": 1}...{}]    |
+| default.converse_enabled    | This option is a flag (either true or false) that controls whether the chatbot can engage in a conversational chat style interaction.                                                | false     |
+| telemetry.telemetry_log_enabled | Flag to enable or disable telemetry events logging to Sunbird Telemetry service                | true                                 |
+| telemetry.environment           | service environment from where telemetry is generated from, in telemetry service               | dev                                  |
+| telemetry.service_id            | service identifier to be passed to Sunbird telemetry service                                   |                                      |
+| telemetry.service_ver           | service version to be passed to Sunbird telemetry service                                      |                                      |
+| telemetry.actor_id              | service actor id to be passed to Sunbird telemetry service                                     |                                      |
+| telemetry.channel               | channel value to be passed to Sunbird telemetry service                                        |                                      |
+| telemetry.pdata_id              | pdata_id value to be passed to Sunbird telemetry service                                       |                                      |
+| telemetry.events_threshold      | telemetry events batch size upon which events will be passed to Sunbird telemetry service      | 5                                    |
+
 
 ## Contributing
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
