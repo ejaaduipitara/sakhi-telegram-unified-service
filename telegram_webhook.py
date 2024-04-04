@@ -260,8 +260,10 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
                 }
             }
 
-        if selected_context != "story":
+        if selected_context == "story" or not CONVERSE_ENABLED:
             reqBody["input"]["audienceType"] = selected_context
+        else:
+            reqBody["input"]["context"] = selected_context
         logger.info(f" API Request Body: {reqBody}")
         headers = {
             "x-source": "telegram",
