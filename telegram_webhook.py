@@ -164,8 +164,11 @@ def create_language_keyboard():
 
 async def language_handler(update: Update, context: CustomContext):
     inline_keyboard_buttons = create_language_keyboard()
-    reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="\nPlease select a Language to proceed", reply_markup=reply_markup)
+    if inline_keyboard_buttons:
+        reply_markup = InlineKeyboardMarkup(inline_keyboard_buttons)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="\nPlease select a Language to proceed", reply_markup=reply_markup)
+    else:
+        return query_handler
 
 
 async def preferred_language_callback(update: Update, context: CustomContext):
@@ -199,7 +202,6 @@ async def context_handler(update: Update, context: CustomContext):
     
     await context.bot.send_message(chat_id=update.effective_chat.id, text=text_message, reply_markup=reply_markup, parse_mode="Markdown") 
         
-
 async def preferred_context_callback(update: Update, context: CustomContext):
     callback_query = update.callback_query
     preferred_context = callback_query.data[len("contextname_"):]
