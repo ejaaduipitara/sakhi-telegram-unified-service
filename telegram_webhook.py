@@ -59,7 +59,6 @@ redis_port = int(os.getenv("REDIS_PORT", "6379"))
 redis_index = int(os.getenv("REDIS_INDEX", "1"))
 DEFAULT_CONTEXT = get_config_value('default', 'context', None)
 DEFAULT_LANGUAGE = get_config_value('default', 'language', None)
-CONVERSE_ENABLED = get_config_value('default', 'converse_enabled').lower() == "true"
 try:
     from telegram import __version_info__
 except ImportError:
@@ -223,11 +222,7 @@ def get_bot_endpoint(contextName: str):
     if contextName == "story":
         return os.environ["STORY_API_BASE_URL"] + '/v1/query_rstory'
     else:
-        activity_url = os.environ["ACTIVITY_API_BASE_URL"]
-        url =  activity_url + '/v1/query'
-        if CONVERSE_ENABLED:
-            url = activity_url + '/v1/chat'
-        return url
+        return os.environ["ACTIVITY_API_BASE_URL"]  + '/v1/chat'
 
 async def get_query_response(query: str, voice_message_url: str, update: Update, context: CustomContext) -> Union[
     ApiResponse, ApiError]:
@@ -261,11 +256,7 @@ async def get_query_response(query: str, voice_message_url: str, update: Update,
                     'format': 'audio'
                 }
             }
-
-        if selected_context == "story" or not CONVERSE_ENABLED:
-            reqBody["input"]["audienceType"] = selected_context
-        else:
-            reqBody["input"]["context"] = selected_context
+        reqBody["input"]["context"] = selected_context
         logger.info(f" API Request Body: {reqBody}")
         headers = {
             "x-source": "telegram",
